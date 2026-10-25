@@ -1,0 +1,783 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<title>TraderDemo Pro</title>
+
+<style>
+:root{--bg:#fff;--panel:#f5f6f8;--text:#17191d;--muted:#7b8089;--line:#e7e9ed;--green:#089981;--red:#f23645;--blue:#2962ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border:0}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.up{color:var(--green)!important}
+.down{color:var(--red)!important}
+.app{max-width:850px;margin:auto;min-height:100vh;padding-bottom:82px}
+.top{height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 17px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:5}
+.brand{font-weight:900;font-size:21px;letter-spacing:-.7px}
+.brand span{color:var(--blue)}
+.pill{background:var(--panel);border-radius:20px;padding:9px 12px;color:var(--text)}
+.page{display:none;padding:16px}
+.page.active{display:block}
+.section-title{font-size:24px;font-weight:800;margin:4px 0 16px}
+.row-between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.watch-tools,.timeframes,.zoom{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.watch-tools button,.secondary,.timeframes button,.zoom button{background:var(--panel);padding:10px 12px;border-radius:9px;color:var(--text)}
+.market-group{font-size:12px;color:var(--muted);font-weight:800;margin:19px 0 7px}
+.asset{width:100%;display:flex;align-items:center;gap:11px;padding:13px 2px;background:#fff;color:var(--text);text-align:left;border-bottom:1px solid var(--line)}
+.coin{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:white;font-size:11px;font-weight:900;flex-shrink:0}
+.asset-info{flex:1;min-width:0}
+.asset-name{font-size:15px;font-weight:800}
+.asset-desc{color:var(--muted);font-size:12px;margin-top:4px;overflow-wrap:anywhere}
+.asset-price{text-align:right;font-size:14px;font-weight:800;white-space:nowrap}
+.asset-change{font-size:12px;margin-top:5px}
+.bottom{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:850px;margin:auto;display:flex;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:8px 2px max(8px,env(safe-area-inset-bottom))}
+.navbtn{background:#fff;color:#62666d;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:50px;font-size:10px}
+.navbtn .ico{font-size:21px;line-height:25px}
+.navbtn.active{color:var(--blue);font-weight:800}
+.chart-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chart-name{font-weight:800;font-size:17px}
+.live-indicator{font-size:11px;color:var(--green);font-weight:800;margin-top:6px}
+.chart-price{display:inline-block;font-size:25px;font-weight:900;margin:14px 0 5px}
+.timeframes{overflow-x:auto;flex-wrap:nowrap}
+.timeframes button{white-space:nowrap;font-size:12px}
+.timeframes button.active{background:#e5edff;color:var(--blue);font-weight:800}
+.chart-wrap{height:340px;position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;touch-action:pan-y}
+.chart-wrap canvas{width:100%;height:100%;display:block;touch-action:pan-y}
+.card,.trade-box{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:#fff}
+.trade-row{display:flex;gap:8px;align-items:center}
+.trade-row input{min-width:0;width:100%;padding:11px;border:1px solid var(--line);border-radius:9px}
+.buy,.sell{flex:1;padding:12px 9px;border-radius:9px;color:white;font-weight:800}
+.buy{background:var(--green)}
+.sell{background:var(--red)}
+.tag{font-size:10px;border-radius:6px;padding:5px 7px;background:#fff0d7;color:#9b6500;font-weight:900}
+.empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:var(--panel);padding:13px;border-radius:12px}
+.metric b{display:block;font-size:19px;margin-top:7px;overflow-wrap:anywhere}
+.field{width:100%;padding:12px;border:1px solid #dfe1e6;border-radius:10px;margin:7px 0;background:#fff;color:var(--text)}
+.primary{width:100%;padding:13px;border-radius:10px;background:#15171b;color:#fff;font-weight:800;margin-top:8px}
+.primary:disabled{opacity:.6;cursor:wait}
+.notice{font-size:12px;line-height:1.55;color:#737781;background:var(--panel);padding:11px;border-radius:9px;margin-top:12px}
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(145deg,#edf2ff,#fff 55%,#f5f0ff)}
+.auth-card{width:100%;max-width:420px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:23px;box-shadow:0 12px 40px #1c2b4810}
+.auth-logo{font-size:27px;font-weight:900;margin-bottom:8px}
+.auth-tabs{display:flex;background:var(--panel);padding:4px;border-radius:11px;margin:18px 0}
+.auth-tabs button{flex:1;padding:10px;border-radius:8px;background:transparent}
+.auth-tabs button.active{background:#fff;box-shadow:0 1px 5px #0001;font-weight:800}
+.explore-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.shortcut{background:var(--panel);padding:15px 5px;border-radius:12px;text-align:center;font-weight:800}
+.shortcut div{font-size:23px;margin-bottom:6px}
+.post-head{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#7561a8;color:#fff;font-weight:900;flex-shrink:0}
+.post-title{font-weight:750;margin:12px 0;overflow-wrap:anywhere}
+.post-actions{display:flex;gap:16px;color:#656970;margin-top:12px;flex-wrap:wrap}
+.post-actions button{background:transparent;color:inherit;font-size:12px}
+.chat-list{max-height:260px;overflow:auto}
+.bubble{background:var(--panel);padding:10px 12px;border-radius:12px;margin:8px 0;max-width:90%;overflow-wrap:anywhere}
+.bubble.mine{background:#e5edff;margin-left:auto}
+.divider{border:0;border-top:1px solid var(--line);margin:15px 0}
+#forgotPasswordBtn{margin-top:12px;background:transparent;color:var(--blue);padding:8px}
+@media(min-width:650px){.page{padding:22px}.chart-wrap{height:430px}.asset{padding:15px 5px}}
+</style>
+</head>
+
+<body>
+
+<div id="auth" class="auth-screen">
+ <div class="auth-card">
+  <div class="auth-logo">Trader<span style="color:#2962ff">Demo</span> Pro</div>
+  <div class="muted">Learn markets. Practise trading. No real money.</div>
+
+  <div class="auth-tabs">
+   <button id="tabRegister" class="active" type="button" onclick="setAuth('register')">Register</button>
+   <button id="tabLogin" type="button" onclick="setAuth('login')">Log in</button>
+  </div>
+
+  <form id="authForm">
+   <div id="nameField">
+    <label for="authName">Display name</label>
+    <input class="field" id="authName" maxlength="30" placeholder="e.g. MarketLearner" required>
+   </div>
+
+   <label for="authEmail">Email</label>
+   <input class="field" id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+
+   <label for="authPassword">Password</label>
+   <input class="field" id="authPassword" type="password" minlength="6" maxlength="100" autocomplete="new-password" placeholder="At least 6 characters" required>
+
+   <button class="primary" id="authSubmit" type="submit">Create account</button>
+   <div id="authError" class="small down" role="alert" aria-live="polite"></div>
+   <button type="button" id="forgotPasswordBtn">Forgot Password?</button>
+  </form>
+
+  <div class="notice">Practice simulator only. Use a unique password. Firebase handles account authentication; practice trades, posts and chat are stored locally on this device.</div>
+  <button class="secondary" style="width:100%;margin-top:12px" type="button" onclick="demoEnter()">Continue as guest</button>
+ </div>
+</div>
+
+<div id="app" class="app hidden">
+ <header class="top">
+  <div class="brand">Trader<span>Demo</span> Pro</div>
+  <button class="pill" onclick="showPage('menu')">☰ Menu</button>
+ </header>
+
+ <main>
+  <section id="watch" class="page active">
+   <div class="row-between">
+    <div class="section-title">Watchlist</div>
+    <button class="secondary" onclick="addSymbol()">＋ Add market</button>
+   </div>
+   <div class="watch-tools">
+    <button onclick="showPage('chart')">▥ Open chart</button>
+    <button onclick="showPage('community')">☷ Community</button>
+   </div>
+   <div class="grid2">
+    <div class="metric"><span class="muted small">Markets tracked</span><b id="marketCount">0</b></div>
+    <div class="metric"><span class="muted small">Practice cash</span><b id="watchCash">₹10,00,000</b></div>
+   </div>
+   <div class="market-group">INDICES · SIMULATED</div><div id="indices"></div>
+   <div class="market-group">STOCKS · SIMULATED</div><div id="stocks"></div>
+   <div class="market-group">OTHER MARKETS · SIMULATED</div><div id="other"></div>
+   <div class="notice">Prices are randomly simulated, not live market quotes or investment advice.</div>
+  </section>
+
+  <section id="chart" class="page">
+   <div class="chart-head">
+    <div>
+     <div class="chart-name" id="chartName">AAPL · Apple Inc.</div>
+     <div class="live-indicator">● LIVE SIMULATION</div>
+    </div>
+    <select id="symbolSelect" class="pill" aria-label="Choose market" onchange="selectSymbol(this.value)"></select>
+   </div>
+   <div class="chart-price" id="chartPrice">$0.00</div>
+   <div id="chartChange" class="down">0.00 (0.00%)</div>
+   <div class="timeframes" id="timeframes">
+    <button data-tf="1m" class="active">1m</button>
+    <button data-tf="5m">5m</button>
+    <button data-tf="10m">10m</button>
+    <button data-tf="1h">1h</button>
+    <button data-tf="10h">10h</button>
+    <button data-tf="1D">1D</button>
+   </div>
+   <div class="chart-wrap"><canvas id="chartCanvas" aria-label="Simulated candlestick chart"></canvas></div>
+   <div class="zoom">
+    <button onclick="zoomChart(-2)">− Zoom out</button>
+    <button onclick="zoomChart(2)">＋ Zoom in</button>
+    <button onclick="resetZoom()">Reset view</button>
+    <button onclick="toggleFeed()" id="feedBtn">Ⅱ Pause prices</button>
+   </div>
+   <div class="muted small">Drag horizontally to move through candles. Prices are simulated.</div>
+
+   <div class="trade-box">
+    <div class="row-between"><b>Practice trading</b><span class="tag">PAPER ONLY</span></div>
+    <div class="muted small" style="margin:9px 0">Available cash: <b id="cash">₹10,00,000</b></div>
+    <label class="small muted" for="qty">Quantity</label>
+    <div class="trade-row">
+     <input id="qty" type="number" min="1" max="1000000" step="1" value="1">
+     <button class="buy" onclick="trade('buy')">Buy</button>
+     <button class="sell" onclick="trade('sell')">Sell</button>
+    </div>
+    <div id="tradeMsg" class="small muted" style="margin-top:10px" role="status">Orders use practice money only.</div>
+   </div>
+
+   <div class="card">
+    <div class="row-between"><b>Open positions</b><span class="muted small">Paper portfolio</span></div>
+    <div id="positions"></div>
+   </div>
+   <div class="card">
+    <div class="row-between"><b>Recent orders</b><span class="muted small">Practice only</span></div>
+    <div id="orders"></div>
+   </div>
+  </section>
+
+  <section id="explore" class="page">
+   <div class="section-title">Explore & Learn</div>
+   <div class="explore-shortcuts">
+    <button class="shortcut" onclick="exploreFilter('News',this)"><div>▤</div>Market brief</button>
+    <button class="shortcut" onclick="exploreFilter('Calendar',this)"><div>▦</div>Calendar</button>
+    <button class="shortcut" onclick="exploreFilter('Learn',this)"><div>♙</div>Learn</button>
+   </div>
+   <div class="timeframes" id="exploreFilters">
+    <button class="active" onclick="exploreFilter('Overview',this)">Overview</button>
+    <button onclick="exploreFilter('Stocks',this)">Stocks</button>
+    <button onclick="exploreFilter('Indices',this)">Indices</button>
+    <button onclick="exploreFilter('Learn',this)">Learn</button>
+   </div>
+   <div id="exploreCards"></div>
+   <div class="notice">Educational sample content only. No live news or predictions.</div>
+  </section>
+
+  <section id="community" class="page">
+   <div class="row-between"><div class="section-title">Community</div><span class="pill" id="userBadge">Guest</span></div>
+   <div class="timeframes">
+    <button class="active" onclick="communityMode('Newest',this)">Newest</button>
+    <button onclick="communityMode('For you',this)">For you</button>
+   </div>
+   <div class="card">
+    <b>Share an idea</b>
+    <textarea id="postText" class="field" rows="3" maxlength="500" placeholder="What are you learning about markets?"></textarea>
+    <button class="primary" onclick="addPost()">Publish post</button>
+   </div>
+   <div id="posts"></div>
+   <div class="card">
+    <b>Local chat</b>
+    <div class="muted small" style="margin:5px 0 12px">Messages are saved on this device only.</div>
+    <div id="chatList" class="chat-list"></div>
+    <div class="trade-row">
+     <input id="chatInput" maxlength="300" aria-label="Chat message" placeholder="Write a message…">
+     <button class="primary" style="width:auto;margin:0" onclick="sendChat()">Send</button>
+    </div>
+   </div>
+  </section>
+
+  <section id="menu" class="page">
+   <div class="section-title">Profile & Menu</div>
+   <div class="card">
+    <div class="post-head">
+     <div class="avatar" id="profileAvatar">G</div>
+     <div><b id="profileName">Guest</b><div class="muted small" id="accountLabel">Practice account</div></div>
+    </div>
+    <hr class="divider">
+    <div class="grid2">
+     <div><div class="muted small">Your posts</div><b id="ideaCount">0</b></div>
+     <div><div class="muted small">Practice cash</div><b id="menuCash">₹10,00,000</b></div>
+    </div>
+   </div>
+   <button class="asset" onclick="showPage('watch')"><div class="coin" style="background:#2962ff">WL</div><div class="asset-info"><div class="asset-name">Watchlist</div><div class="asset-desc">Browse simulated markets</div></div>›</button>
+   <button class="asset" onclick="showPage('chart')"><div class="coin" style="background:#089981">CH</div><div class="asset-info"><div class="asset-name">Chart & Practice Trading</div><div class="asset-desc">Candlesticks and paper orders</div></div>›</button>
+   <button class="asset" onclick="showPage('community')"><div class="coin" style="background:#95628d">CM</div><div class="asset-info"><div class="asset-name">Community & Chat</div><div class="asset-desc">Local demo posts and messages</div></div>›</button>
+   <button class="secondary" style="width:100%;margin-top:14px" onclick="resetAccount()">↻ Reset practice account</button>
+   <button class="primary" onclick="logout()">Sign out</button>
+   <div class="notice">This is a learning simulator, not a broker. No real trades or payments occur. Posts and chat are local to this device and are not shared with other users.</div>
+  </section>
+ </main>
+
+ <nav class="bottom">
+  <button class="navbtn active" data-page="watch" onclick="showPage('watch')"><span class="ico">▤</span>Watchlist</button>
+  <button class="navbtn" data-page="chart" onclick="showPage('chart')"><span class="ico">⌁</span>Chart</button>
+  <button class="navbtn" data-page="explore" onclick="showPage('explore')"><span class="ico">◈</span>Explore</button>
+  <button class="navbtn" data-page="community" onclick="showPage('community')"><span class="ico">♧</span>Community</button>
+  <button class="navbtn" data-page="menu" onclick="showPage('menu')"><span class="ico">☰</span>Menu</button>
+ </nav>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+'use strict';
+
+/* Firebase configuration */
+const firebaseConfig = {
+ apiKey: "AIzaSyDEpmHDC1STzL2ucti_uwUNXSoth9DSDN4",
+ authDomain: "traderdemo-pro.firebaseapp.com",
+ projectId: "traderdemo-pro",
+ storageBucket: "traderdemo-pro.firebasestorage.app",
+ messagingSenderId: "912169371002",
+ appId: "1:912169371002:web:35db2079e337b313e682c3"
+};
+
+let firebaseAuth = null;
+let db = null;
+let firebaseReady = false;
+
+try {
+ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_FIREBASE_API_KEY") {
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  firebaseAuth = firebase.auth();
+  db = firebase.firestore();
+  firebaseReady = true;
+ }
+} catch (error) {
+ console.error("Firebase setup error:", error);
+}
+
+const $ = id => document.getElementById(id);
+const fmt = n => new Intl.NumberFormat('en-IN',{
+ maximumFractionDigits:2,minimumFractionDigits:2
+}).format(Number(n)||0);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
+
+const STORAGE_KEY = 'traderdemo_pro_v2';
+const START_CASH = 1000000;
+
+const seed = [
+ {s:'SPX',n:'S&P 500 Index',p:7652.12,g:'index',c:'#bd1e3d',cur:'$'},
+ {s:'NDQ',n:'US 100 Index',p:29046.44,g:'index',c:'#0898b7',cur:'$'},
+ {s:'DJI',n:'Dow Jones Industrial Average',p:52331.22,g:'index',c:'#20a6c9',cur:'$'},
+ {s:'VIX',n:'Volatility Index',p:19.71,g:'index',c:'#299b43',cur:'$'},
+ {s:'DXY',n:'US Dollar Currency Index',p:101.83,g:'index',c:'#087f70',cur:'$'},
+ {s:'AAPL',n:'Apple Inc.',p:346.92,g:'stock',c:'#202329',cur:'$'},
+ {s:'TSLA',n:'Tesla Inc.',p:372.84,g:'stock',c:'#e82127',cur:'$'},
+ {s:'NFLX',n:'Netflix Inc.',p:66.61,g:'stock',c:'#202329',cur:'$'},
+ {s:'MSFT',n:'Microsoft Corp.',p:512.40,g:'stock',c:'#0876c9',cur:'$'},
+ {s:'NVDA',n:'NVIDIA Corp.',p:183.25,g:'stock',c:'#76b900',cur:'$'},
+ {s:'RELIANCE',n:'Reliance Industries',p:1452.60,g:'other',c:'#2364bb',cur:'₹'},
+ {s:'TCS',n:'Tata Consultancy Services',p:3180.30,g:'other',c:'#5b54b8',cur:'₹'}
+];
+
+function makeCandles(price){
+ const arr=[];
+ for(let i=0;i<100;i++){
+  const o=price;
+  const c=Math.max(.01,o*(1+(Math.random()-.5)*.009));
+  arr.push({o,c,h:Math.max(o,c)*(1+Math.random()*.003),l:Math.min(o,c)*(1-Math.random()*.003)});
+  price=c;
+ }
+ return arr;
+}
+
+let markets=seed.map(x=>{
+ const candles=makeCandles(x.p);
+ const p=candles[candles.length-1].c;
+ return {...x,p,open:p,prev:p,change:0,pct:0,history:candles.map(c=>c.c),candles};
+});
+
+let selected='AAPL',cash=START_CASH,positions={},orders=[];
+let feedOn=true,zoom=0,tf='1m',username='Guest',authMode='register';
+let posts=[],messages=[],accountEmail='',dragStartX=null,candleOffset=0;
+
+function setAuth(mode){
+ authMode=mode;
+ $('tabRegister').classList.toggle('active',mode==='register');
+ $('tabLogin').classList.toggle('active',mode==='login');
+ $('nameField').classList.toggle('hidden',mode==='login');
+ $('authName').required=mode==='register';
+ $('authPassword').autocomplete=mode==='register'?'new-password':'current-password';
+ $('authSubmit').textContent=mode==='register'?'Create account':'Log in';
+ $('authError').textContent='';
+}
+
+$('authForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+
+ if(!firebaseReady){
+  $('authError').textContent='Firebase setup nahi hua. Apni Firebase API key check karo.';
+  return;
+ }
+
+ const email=$('authEmail').value.trim().toLowerCase();
+ const password=$('authPassword').value;
+ const name=$('authName').value.trim();
+
+ $('authError').textContent='';
+ $('authSubmit').disabled=true;
+
+ try{
+  if(authMode==='register'){
+   if(!name)throw new Error('Please enter your display name.');
+   if(password.length<6)throw new Error('Password must be at least 6 characters.');
+
+   const result=await firebaseAuth.createUserWithEmailAndPassword(email,password);
+   await result.user.updateProfile({displayName:name});
+   username=name;
+   accountEmail=result.user.email||email;
+  }else{
+   const result=await firebaseAuth.signInWithEmailAndPassword(email,password);
+   username=result.user.displayName||'Trader';
+   accountEmail=result.user.email||email;
+  }
+  enterApp();
+ }catch(error){
+  const messagesByCode={
+   'auth/email-already-in-use':'This email is already registered. Please log in.',
+   'auth/invalid-email':'Please enter a valid email address.',
+   'auth/weak-password':'Choose a stronger password with at least 6 characters.',
+   'auth/invalid-credential':'Email or password is incorrect.',
+   'auth/user-not-found':'Account not found. Please register first.',
+   'auth/wrong-password':'Incorrect password. Please try again.',
+   'auth/too-many-requests':'Too many attempts. Please wait and try again.',
+   'auth/network-request-failed':'Network problem. Check your internet connection.',
+   'auth/operation-not-allowed':'Enable Email/Password in Firebase Authentication settings.',
+   'auth/unauthorized-domain':'Add this website domain in Firebase Authentication settings.'
+  };
+  $('authError').textContent=messagesByCode[error.code]||error.message||'Something went wrong.';
+ }finally{
+  $('authSubmit').disabled=false;
+ }
+});
+
+$('forgotPasswordBtn').addEventListener('click',async()=>{
+ const email=$('authEmail').value.trim();
+ const errorBox=$('authError');
+
+ if(!firebaseReady){
+  errorBox.textContent='Firebase setup nahi hua. API key check karo.';
+  return;
+ }
+ if(!email){
+  errorBox.textContent='Pehle apna registered email address likho.';
+  $('authEmail').focus();
+  return;
+ }
+
+ try{
+  await firebaseAuth.sendPasswordResetEmail(email);
+  errorBox.textContent='Password reset link ke liye apna email check karo.';
+ }catch(error){
+  if(error.code==='auth/invalid-email'){
+   errorBox.textContent='Email address sahi tarah likho.';
+  }else if(error.code==='auth/user-not-found'){
+   errorBox.textContent='Is email se account nahi mila.';
+  }else{
+   errorBox.textContent='Reset link nahi bhej paye. Dobara try karo.';
+  }
+ }
+});
+
+function demoEnter(){
+ username='Guest';
+ accountEmail='';
+ enterApp();
+}
+
+function enterApp(){
+ $('auth').classList.add('hidden');
+ $('app').classList.remove('hidden');
+ $('userBadge').textContent=username;
+ $('profileName').textContent=username;
+ $('profileAvatar').textContent=(username[0]||'G').toUpperCase();
+ $('accountLabel').textContent=accountEmail||'Guest practice account';
+ loadLocal();
+ renderAll();
+ showPage('watch');
+}
+
+async function logout(){
+ saveLocal();
+ if(firebaseReady&&firebaseAuth.currentUser){
+  try{await firebaseAuth.signOut();}
+  catch(error){console.error('Sign-out error:',error);}
+ }
+ $('app').classList.add('hidden');
+ $('auth').classList.remove('hidden');
+ $('authPassword').value='';
+ $('authError').textContent='';
+ accountEmail='';
+ username='Guest';
+ setAuth('login');
+}
+
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ if(id==='chart'){renderChartInfo();drawChart();}
+ if(id==='explore')renderExplore();
+ if(id==='community')renderCommunity();
+ window.scrollTo(0,0);
+}
+
+function getM(s=selected){return markets.find(m=>m.s===s)||markets[0];}
+
+function selectSymbol(s){
+ if(!markets.some(m=>m.s===s))return;
+ selected=s;candleOffset=0;
+ $('symbolSelect').value=s;
+ showPage('chart');
+ renderChartInfo();drawChart();
+}
+
+function renderWatch(){
+ for(const g of ['index','stock','other']){
+  const id=g==='index'?'indices':g==='stock'?'stocks':'other';
+  $(id).innerHTML=markets.filter(m=>m.g===g).map(m=>`
+   <button class="asset" onclick="selectSymbol('${esc(m.s)}')">
+    <div class="coin" style="background:${m.c}">${esc(m.s.slice(0,3))}</div>
+    <div class="asset-info"><div class="asset-name">${esc(m.s)}</div><div class="asset-desc">${esc(m.n)}</div></div>
+    <div class="asset-price">${m.cur}${fmt(m.p)}
+     <div class="asset-change ${m.change>=0?'up':'down'}">${m.change>=0?'+':''}${fmt(m.change)} (${m.pct>=0?'+':''}${m.pct.toFixed(2)}%)</div>
+    </div>
+   </button>`).join('');
+ }
+ $('marketCount').textContent=markets.length;
+ $('watchCash').textContent='₹'+fmt(cash);
+}
+
+function renderChartInfo(){
+ const m=getM();
+ $('chartName').textContent=m.s+' · '+m.n;
+ $('chartPrice').textContent=m.cur+fmt(m.p);
+ $('chartPrice').className='chart-price '+(m.change>=0?'up':'down');
+ $('chartChange').textContent=(m.change>=0?'+':'')+fmt(m.change)+' ('+(m.pct>=0?'+':'')+m.pct.toFixed(2)+'%)';
+ $('chartChange').className=m.change>=0?'up':'down';
+ $('symbolSelect').innerHTML=markets.map(x=>`<option value="${esc(x.s)}">${esc(x.s)}</option>`).join('');
+ $('symbolSelect').value=selected;
+ $('cash').textContent='₹'+fmt(cash);
+ $('menuCash').textContent='₹'+fmt(cash);
+ $('watchCash').textContent='₹'+fmt(cash);
+ renderPositions();renderOrders();
+}
+
+function renderPositions(){
+ const keys=Object.keys(positions).filter(k=>positions[k].qty>0);
+ $('positions').innerHTML=keys.length?keys.map(s=>{
+  const p=positions[s],m=getM(s),pl=(m.p-p.avg)*p.qty;
+  return `<div class="asset"><div class="asset-info"><b>${esc(s)}</b><div class="asset-desc">${p.qty} units · average ${m.cur}${fmt(p.avg)}</div></div><b class="${pl>=0?'up':'down'}">${pl>=0?'+':'−'}${m.cur}${fmt(Math.abs(pl))}</b></div>`;
+ }).join(''):'<div class="empty">No open positions yet. Try a practice buy order.</div>';
+}
+
+function renderOrders(){
+ $('orders').innerHTML=orders.length?orders.slice(0,10).map(o=>`
+  <div class="asset"><div class="asset-info"><b class="${o.side==='buy'?'up':'down'}">${o.side.toUpperCase()} · ${esc(o.s)}</b><div class="asset-desc">${o.qty} units · ${esc(o.time)}</div></div><b>${o.cur||'$'}${fmt(o.price)}</b></div>`).join(''):'<div class="empty">Your practice orders will appear here.</div>';
+}
+
+function renderAll(){renderWatch();renderChartInfo();renderExplore();renderCommunity();}
+
+function tick(){
+ if(!feedOn)return;
+ markets.forEach(m=>{
+  m.prev=m.p;
+  m.p=Math.max(.01,m.p*(1+(Math.random()-.495)*.0035));
+  m.change=m.p-m.open;
+  m.pct=m.open?(m.change/m.open)*100:0;
+  m.history.push(m.p);
+  if(m.history.length>200)m.history.shift();
+  const last=m.candles[m.candles.length-1];
+  last.c=m.p;last.h=Math.max(last.h,m.p);last.l=Math.min(last.l,m.p);
+  if(Math.random()<.2){
+   const o=m.p,c=Math.max(.01,o*(1+(Math.random()-.5)*.004));
+   m.candles.push({o,c,h:Math.max(o,c)*(1+Math.random()*.002),l:Math.min(o,c)*(1-Math.random()*.002)});
+   if(m.candles.length>200)m.candles.shift();
+  }
+ });
+ renderWatch();renderChartInfo();
+ if($('chart').classList.contains('active'))drawChart();
+}
+setInterval(tick,1400);
+
+$('timeframes').addEventListener('click',e=>{
+ const b=e.target.closest('button[data-tf]');
+ if(!b)return;
+ document.querySelectorAll('#timeframes button').forEach(x=>x.classList.toggle('active',x===b));
+ tf=b.dataset.tf;drawChart();
+});
+
+function drawChart(){
+ const canvas=$('chartCanvas'),wrap=canvas.parentElement;
+ const w=wrap.clientWidth,h=wrap.clientHeight;
+ if(!w||!h)return;
+ const dpr=window.devicePixelRatio||1;
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+ const ctx=canvas.getContext('2d');
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const m=getM();
+ const visibleCount=Math.max(10,Math.min(100,45-zoom*5));
+ const end=Math.max(1,m.candles.length-candleOffset);
+ const start=Math.max(0,end-visibleCount);
+ const data=m.candles.slice(start,end);
+ if(data.length<2)return;
+ let min=Math.min(...data.map(c=>c.l)),max=Math.max(...data.map(c=>c.h));
+ const padding=(max-min)*.12||Math.max(.1,max*.01);
+ min-=padding;max+=padding;
+ const left=8,right=61,top=15,bottom=27,cw=w-left-right,ch=h-top-bottom;
+ if(cw<=0||ch<=0)return;
+ ctx.font='10px Arial';
+ for(let i=0;i<6;i++){
+  const y=top+ch*i/5;
+  ctx.strokeStyle='#e8eaed';ctx.setLineDash([2,4]);
+  ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#737780';
+  ctx.fillText((max-(max-min)*i/5).toFixed(2),w-right+4,y+3);
+ }
+ const slot=cw/data.length,bw=Math.max(1.5,Math.min(13,slot*.62));
+ data.forEach((c,i)=>{
+  const x=left+i*slot+slot/2;
+  const yO=top+(max-c.o)/(max-min)*ch;
+  const yC=top+(max-c.c)/(max-min)*ch;
+  const yH=top+(max-c.h)/(max-min)*ch;
+  const yL=top+(max-c.l)/(max-min)*ch;
+  const col=c.c>=c.o?'#089981':'#f23645';
+  ctx.strokeStyle=col;ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(x,yH);ctx.lineTo(x,yL);ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.fillRect(x-bw/2,Math.min(yO,yC),bw,Math.max(1,Math.abs(yC-yO)));
+ });
+ const py=top+(max-m.p)/(max-min)*ch;
+ ctx.strokeStyle=m.change>=0?'#089981':'#f23645';
+ ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(left,py);ctx.lineTo(w-right,py);ctx.stroke();ctx.setLineDash([]);
+ ctx.fillStyle=m.change>=0?'#089981':'#f23645';
+ ctx.fillRect(w-right,Math.max(top,Math.min(top+ch-18,py-9)),right-2,18);
+ ctx.fillStyle='#fff';ctx.font='bold 10px Arial';
+ ctx.fillText(m.p.toFixed(2),w-right+4,Math.max(top+12,Math.min(top+ch-5,py+3)));
+ ctx.fillStyle='#777';ctx.font='10px Arial';ctx.fillText(tf+' · SIM',left,h-7);
+}
+function zoomChart(n){zoom=Math.max(-5,Math.min(6,zoom+n));drawChart();}
+function resetZoom(){zoom=0;candleOffset=0;drawChart();}
+function toggleFeed(){
+ feedOn=!feedOn;
+ $('feedBtn').textContent=feedOn?'Ⅱ Pause prices':'▶ Resume prices';
+}
+
+$('chartCanvas').addEventListener('pointerdown',e=>{dragStartX=e.clientX;});
+$('chartCanvas').addEventListener('pointerup',e=>{
+ if(dragStartX===null)return;
+ const delta=e.clientX-dragStartX;
+ if(Math.abs(delta)>20){
+  const step=Math.max(1,Math.round(Math.abs(delta)/20));
+  candleOffset=Math.max(0,Math.min(150,candleOffset+(delta>0?step:-step)));
+  drawChart();
+ }
+ dragStartX=null;
+});
+$('chartCanvas').addEventListener('pointercancel',()=>{dragStartX=null;});
+
+function trade(side){
+ const m=getM(),qty=Number($('qty').value);
+ if(!Number.isSafeInteger(qty)||qty<1||qty>1000000){
+  $('tradeMsg').textContent='Enter a whole-number quantity between 1 and 1,000,000.';return;
+ }
+ const cost=m.p*qty;
+ if(!Number.isFinite(cost)||cost<=0){
+  $('tradeMsg').textContent='Invalid order value.';return;
+ }
+ if(!positions[selected])positions[selected]={qty:0,avg:0};
+ const p=positions[selected];
+ if(side==='buy'){
+  if(cost>cash){$('tradeMsg').textContent='Not enough practice cash.';return;}
+  p.avg=(p.avg*p.qty+cost)/(p.qty+qty);
+  p.qty+=qty;cash-=cost;
+ }else{
+  if(p.qty<qty){$('tradeMsg').textContent='You do not own enough units to sell.';return;}
+  p.qty-=qty;cash+=cost;
+  if(p.qty===0)p.avg=0;
+ }
+ orders.unshift({side,s:selected,qty,price:m.p,cur:m.cur,time:new Date().toLocaleTimeString()});
+ orders=orders.slice(0,100);
+ $('tradeMsg').textContent=`Practice ${side} completed: ${qty} ${selected} at ${m.cur}${fmt(m.p)}.`;
+ renderChartInfo();renderWatch();saveLocal();
+}
+
+function addSymbol(){
+ const raw=prompt('Enter a demo ticker, for example AMZN:');
+ if(!raw)return;
+ const s=raw.toUpperCase().trim().replace(/[^A-Z0-9._-]/g,'').slice(0,15);
+ if(!s){alert('Enter a valid ticker symbol.');return;}
+ if(markets.some(m=>m.s===s)){selectSymbol(s);return;}
+ const p=100+Math.random()*400,candles=makeCandles(p);
+ markets.push({s,n:s+' Demo Market',p:candles[candles.length-1].c,open:p,prev:p,change:0,pct:0,g:'other',c:'#64748b',cur:'$',history:candles.map(c=>c.c),candles});
+ renderWatch();renderChartInfo();saveLocal();
+}
+
+const headlines=[
+ ['Market basics','Learn how a candlestick shows open, high, low and close.','Learn'],
+ ['Risk management','Understand position sizing, uncertainty and potential losses.','Learn'],
+ ['Index watch','Market indices summarize groups of securities. Their values can move both ways.','Indices'],
+ ['Company watch','Compare simulated stock movements without using real money.','Stocks'],
+ ['Trading journal','Record why you entered a practice trade and what you learned.','Learn'],
+ ['Market calendar','Learn why economic releases and company announcements can affect markets.','Calendar']
+];
+
+function exploreFilter(filter,btn){
+ if(btn&&btn.parentElement.id==='exploreFilters'){
+  document.querySelectorAll('#exploreFilters button').forEach(b=>b.classList.toggle('active',b===btn));
+ }
+ renderExplore(filter);
+}
+function renderExplore(filter='Overview'){
+ const arr=headlines.filter(h=>filter==='Overview'||h[2]===filter||(filter==='News'&&h[2]!=='Learn'));
+ $('exploreCards').innerHTML=arr.map(h=>`
+  <div class="card">
+   <div class="muted small">${filter==='News'?'SAMPLE MARKET BRIEF':filter==='Calendar'?'LEARNING CALENDAR':'TRADERDEMO · EDUCATION'}</div>
+   <div class="post-title">${esc(h[0])}</div>
+   <div>${esc(h[1])}</div>
+   <div class="post-actions"><button onclick="showPage('chart')">▥ Open chart</button><button onclick="showPage('community')">☷ Discuss</button></div>
+  </div>`).join('')||'<div class="empty">No items in this category yet.</div>';
+}
+
+function addPost(){
+ const t=$('postText').value.trim();
+ if(!t)return;
+ posts.unshift({id:Date.now()+Math.random(),name:username,text:t,time:new Date().toLocaleString(),likes:0});
+ posts=posts.slice(0,200);$('postText').value='';
+ saveLocal();renderCommunity();
+}
+function communityMode(mode,btn){
+ document.querySelectorAll('#community .timeframes button').forEach(b=>b.classList.toggle('active',b===btn));
+ renderCommunity(mode);
+}
+function renderCommunity(mode='Newest'){
+ const demo=[
+  {id:'demo1',name:'TraderDemo Team',text:'Welcome! Share what you are learning and keep every trade in this app as practice only.',time:'Demo post',likes:3},
+  {id:'demo2',name:'ChartLearner',text:'I am practising how green and red candlesticks show price movement.',time:'Demo post',likes:2}
+ ];
+ let list=posts.length?posts:demo;
+ if(mode==='Newest')list=[...list].reverse();
+ $('posts').innerHTML=list.map(p=>`
+  <div class="card">
+   <div class="post-head"><div class="avatar">${esc((p.name||'G')[0].toUpperCase())}</div>
+    <div><b>${esc(p.name)}</b><div class="muted small">${esc(p.time)}</div></div>
+   </div>
+   <div class="post-title">${esc(p.text)}</div>
+   <div class="post-actions"><button onclick="likePost('${String(p.id).replace(/'/g,'')}')">♡ ${Number(p.likes)||0} Like</button><button onclick="showPage('community')">▢ Local chat</button></div>
+  </div>`).join('');
+ $('ideaCount').textContent=posts.length;
+ renderChat();
+}
+function likePost(id){
+ const p=posts.find(x=>String(x.id)===String(id));
+ if(!p){alert('Demo posts cannot be edited. Publish your own post to try likes.');return;}
+ p.likes=(Number(p.likes)||0)+1;saveLocal();renderCommunity();
+}
+function sendChat(){
+ const t=$('chatInput').value.trim();
+ if(!t)return;
+ messages.push({name:username,text:t,time:new Date().toLocaleTimeString()});
+ messages=messages.slice(-200);$('chatInput').value='';
+ saveLocal();renderChat();
+}
+function renderChat(){
+ $('chatList').innerHTML=messages.length?messages.map(m=>`
+  <div class="bubble ${m.name===username?'mine':''}">
+   <b>${esc(m.name)}</b><div>${esc(m.text)}</div><div class="muted small">${esc(m.time)}</div>
+  </div>`).join(''):'<div class="empty">No local messages yet. Say hello!</div>';
+ $('chatList').scrollTop=$('chatList').scrollHeight;
+}
+$('chatInput').addEventListener('keydown',e=>{
+ if(e.key==='Enter'){e.preventDefault();sendChat();}
+});
+
+function saveLocal(){
+ try{
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({cash,positions,orders,posts,messages,username}));
+ }catch(e){console.warn('Local storage unavailable',e);}
+}
+function loadLocal(){
+ try{
+  const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(Number.isFinite(d.cash)&&d.cash>=0)cash=d.cash;
+  if(d.positions&&typeof d.positions==='object')positions=d.positions;
+  if(Array.isArray(d.orders))orders=d.orders;
+  if(Array.isArray(d.posts))posts=d.posts;
+  if(Array.isArray(d.messages))messages=d.messages;
+ }catch(e){console.warn('Could not load saved demo data',e);}
+}
+function resetAccount(){
+ if(!confirm('Reset practice cash, positions, orders, posts and local chat?'))return;
+ cash=START_CASH;positions={};orders=[];posts=[];messages=[];
+ saveLocal();renderAll();renderChartInfo();
+ alert('Practice account reset.');
+}
+
+window.addEventListener('resize',()=>{
+ if($('chart').classList.contains('active'))drawChart();
+});
+
+renderWatch();
+renderChartInfo();
+renderExplore();
+</script>
+</body>
+</html>
