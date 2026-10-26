@@ -1,11 +1,12 @@
-<escape>{
-"hosting": {
-"public": ".",
-"ignore": [
-"firebase.json",
-"/.*",
-"/node_modules/",
-"/.github/**"
-]
+
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/.github/**"
+    ]
+  }
 }
-}</escape>
